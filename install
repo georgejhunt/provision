@@ -1,0 +1,38 @@
+#!/bin/bash -x
+
+if [ -f /etc/iiab/iiab.env ]
+then
+  . /etc/iiab/iiab.env
+else
+ echo "IIAB Config not found."
+ echo "Please install Internet in a Box before installing provision."
+ echo "Exiting."
+ exit
+fi
+
+# facts file for admin console, assumes iiab created directory
+cp ./scripts/admin_facts.fact /etc/ansible/facts.d/admin_facts.fact
+
+PLAYBOOK="provision.yml"
+INVENTORY="ansible_hosts"
+
+PROVISION_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ ! -f $PROVISION_DIR/$PLAYBOOK ]; then
+ echo "Provision Playbook not found."
+ echo "Please make sure you have cloned the provision git repo."
+ echo "Exiting."
+ exit
+fi
+
+cd $PROVISION_DIR
+
+echo "Running local playbooks! "
+
+# ARGS="--extra-vars '{\"target_base\":\"$IIAB_DIR\"}'"
+#ARGS="target_base=$IIAB_DIR"
+
+export ANSIBLE_LOG_PATH="$PROVISION_DIR/install.log"
+
+#ansible-playbook -i $INVENTORY $PLAYBOOK --extra-vars "${ARGS}" --connection=local
+ansible-playbook -i $INVENTORY $PLAYBOOK --connection=local

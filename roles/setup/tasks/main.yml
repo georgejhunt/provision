@@ -1,0 +1,19 @@
+- name: Create base directory
+  file: path={{ provision_base_dir }} state=directory 
+
+- name: Create assets directory
+  file: path={{ provision_assets_dir }} state=directory 
+
+- name: Put the scripts in place
+  template: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+  with_items:
+     - { src: 'pits.conf', dest: '/etc/apache2/sites-available/{{ provision_prefix }}.conf', mode: '0644' } 
+     - { src: 'pits.py', dest: '{{ provision_base_dir }}/{{ provision_prefix }}.py', mode: '0755' } 
+     - { src: 'pits.wsgi', dest: '{{ provision_base_dir }}/{{ provision_prefix }}.wsgi', mode: '0755' } 
+     - { src: 'combined.py', dest: '{{ provision_base_dir }}/combined.py', mode: '0755' } 
+     - { src: 'languages.py', dest: '{{ provision_base_dir }}/languages.py', mode: '0755' } 
+
+- name: Enable the apache2 config file
+  file: path=/etc/apache2/sites-enabled/{{ provision_prefix }}.conf
+        src=/etc/apache2/sites-available/{{ provision_prefix }}.conf
+        state=link

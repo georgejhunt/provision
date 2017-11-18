@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    iiab_base: /opt/iiab
+    iiab_repo: "{{ iiab_base }}/iiab"
+    provision_repo: "{{ iiab_base }}/provision"
+    iiab_config_dir: /etc/iiab
+
+    xsce_base: "{{ iiab_base }}"
+    pip_packages_dir: "{{ xsce_base }}/pip-packages"
+    yum_packages_dir: "{{ xsce_base }}/yum-packages"
+    downloads_dir: "{{ xsce_base }}/downloads"
+    doc_root: /library/www/html
+    iiab_home_url: /home
+
+
+  vars_files:
+  - "{{ iiab_repo }}/vars/default_vars.yml"
+  - "{{ iiab_repo }}/vars/{{ ansible_local.local_facts.os_ver }}.yml"
+  - "{{ iiab_repo }}/vars/local_vars.yml"
+  - vars/default_vars.yml
+#  - vars/{{ ansible_distribution }}.yml
+
+  roles:
+      - { role: setup }
+      - { role: selections }
+      - { role: upload }
