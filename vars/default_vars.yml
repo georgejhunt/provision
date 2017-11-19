@@ -4,7 +4,7 @@
 iiab_config_file : "{{ iiab_config_dir }}/iiab.env"
 provision_bin_dir: /usr/local/
 provision_prefix: skypi
-provision_url_alias: pi-in-the-sky
+provision_url_alias: pits
 provision_home_dir: "{{ doc_root }}/{{ provision_prefix }}"
 provision_assets_dir: "{{ provision_home_dir }}/resources"
 provision_base_dir: /opt/provision

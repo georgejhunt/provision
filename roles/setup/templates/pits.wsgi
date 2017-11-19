@@ -1,6 +1,6 @@
 import sys
  
-sys.path.append('/root/iiab-factory/box/rpi/pi-in-the-sky')
+sys.path.append('{{ provision_base_dir }}')
  
-from pits import app as application
+from {{ provision_prefix }} import app as application
 
