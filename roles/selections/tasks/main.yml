@@ -1,0 +1,6 @@
+- name: Copy web resources
+  template: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+  with_items:
+     - { src: 'tree.html', dest: '{{ provision_home_dir }}', mode: '0644' } 
+     - { src: 'tree.js', dest: '{{ provision_home_dir }}/resources', mode: '0644' } 
+  

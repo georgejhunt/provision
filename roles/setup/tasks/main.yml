@@ -12,6 +12,12 @@
      - { src: 'pits.wsgi', dest: '{{ provision_base_dir }}/{{ provision_prefix }}.wsgi', mode: '0755' } 
      - { src: 'combined.py', dest: '{{ provision_base_dir }}/combined.py', mode: '0755' } 
      - { src: 'languages.py', dest: '{{ provision_base_dir }}/languages.py', mode: '0755' } 
+     - { src: 'delete_db.sh', dest: '{{ provision_bin_dir }}/{{ provision_prefix }}-delete-db.sh', mode: '0755' } 
+
+- name: Put the files in place
+  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+  with_items:
+     - { src: 'lang_codes.json', dest: '{{ provision_assets_dir }}/', mode: '0644' } 
 
 - name: Enable the apache2 config file
   file: path=/etc/apache2/sites-enabled/{{ provision_prefix }}.conf

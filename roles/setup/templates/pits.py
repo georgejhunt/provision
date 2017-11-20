@@ -20,11 +20,11 @@ def hello():
 def get_one():
    db = sqlite3.connect('{{ provision_assets_dir }}/catalog.sqlite')
    db.row_factory = sqlite3.Row
-   lang3 = request.args.get('language','eng')
+   iso3 = request.args.get('language','eng')
    cursor = db.cursor()
    cursor.execute('attach database "{{ provision_assets_dir }}/languages.sqlite" as languages')
-   sql = "select  engname, locname, size, native_spkrs,publisher,file_ref,date, recno from catalog as c left join languages as l on c.lang3 = l.iso3 where c.lang3 = ? order by file_ref"
-   cur = cursor.execute(sql,(lang3,))
+   sql = "select  engname, locname, size, native_spkrs,publisher,file_ref,date, recno from catalog as c left join languages as l on c.iso3 = l.iso3 where c.iso3 = ? order by file_ref"
+   cur = cursor.execute(sql,(iso3,))
    rows = cur.fetchall()
    tree=[]
    for row in rows:
@@ -67,33 +67,44 @@ def get_kiwix_data():
    return ((parent))
 
 def get_rachel_data():
-    ret = { 'title': "Rachel" }
-    return ((ret))
+   global db,cursor
+
+   parent = {}
+   parent["title"] = "Rachel"
+   parent["children"] =[]
+   sql = 'select * from curlang where publisher = (?) order by file_ref' 
+   cursor.execute(sql,['rachel'])
+   children = cursor.fetchall()
+   for child in children:
+      item = {}
+      try:
+         size = int(child['size']) 
+      except:
+         size = 0
+      item['title'] = child['file_ref'] +" "  + sizeof_fmt(size) 
+      parent['children'].append(item)
+   return ((parent))
 
 @app.route('/data')
 def get_lang():
    global db,cursor
    db = sqlite3.connect(':memory:')
+   #db = sqlite3.connect('sqlite:////opt/provision/temp.sqlite')
    db.row_factory = sqlite3.Row
-   lang3 = request.args.get('language','eng')
+   iso3 = request.args.get('language','eng')
    cursor = db.cursor()
-   cursor.execute('attach database "{{ provision_assets_dir }}/languages.sqlite" as languages')
+   #cursor.execute('attach database "{{ provision_assets_dir }}/languages.sqlite" as languages')
    cursor.execute('attach database "{{ provision_assets_dir }}/catalog.sqlite" as cat')
-   cursor.execute('create table curlang as SELECT * from cat.catalog where lang3 = "%s"'%lang3)
+   cursor.execute('create table curlang as SELECT * from cat.catalog where iso3 = "%s"'%iso3)
 
    #start generating the list of items for tree
    tree=[]
    tree.append(get_kiwix_data())
    tree.append(get_rachel_data())
+
+   cursor.close()
    #print(tree)
    return(jsonify(tree))
 
-'''
-   cursor.execute('select publisher,max(creator) from curlang  group by creator')
-   rows = memcursor.fetchall()
-   for row in rows:
-      sql = 'select * from curlang where creator = '?' order by file_ref' 
-      itemcursor.execute(sql, row['creator'])
-'''
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0")
